@@ -31,10 +31,18 @@ const findUserToLogin = (email) => {
     .then(([results]) => results);
 };
 
+const editUser = (data, user_id) => {
+  return database
+    .query("UPDATE users SET? WHERE id=?", [data, user_id])
+    .then(([results]) => results)
+    .catch((err) => console.error(err));
+};
+
 module.exports = {
   userById,
   getAllUsers,
   createNewUser,
   findByEmail,
   findUserToLogin,
+  editUser,
 };

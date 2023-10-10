@@ -30,4 +30,6 @@ usersRouter.post(
   UserController.loginUser
 );
 
+usersRouter.put("/edit-profile/:id", UserController.editUserController);
+
 module.exports = usersRouter;

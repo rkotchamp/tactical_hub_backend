@@ -44,9 +44,25 @@ const loginUser = (req, res) => {
   }
 };
 
+const editUserController = (req, res) => {
+  const user_id = Number(req.params.id);
+  const { body } = req;
+  Users.editUser(body, user_id)
+    .then((results) => {
+      if (results.affectedRows > 0) {
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
 module.exports = {
   getUserById,
   getUsers,
   createNewUser,
   loginUser,
+  editUserController,
 };
