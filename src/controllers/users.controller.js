@@ -1,4 +1,6 @@
 const Users = require("../models/users.model");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 const getUserById = (req, res) => {
   const id = 1;
@@ -16,6 +18,7 @@ const getUsers = (req, res) => {
     .then((results) => results)
     .catch((err) => console.error(err));
 };
+
 const createNewUser = (req, res) => {
   Users.createNewUser(req.body)
     .then((results) => {
@@ -38,7 +41,13 @@ const createNewUser = (req, res) => {
 const loginUser = (req, res) => {
   // Users.findUserToLogin(req.body);
   if (req.user !== null && Object.keys(req.user).length > 0) {
-    res.status(200).send(req.user);
+    const { id, email } = req.user;
+    const token = jwt.sign(
+      { userId: id, email: email },
+      process.env.PRIVATE_KEY
+    );
+    console.log(token);
+    // res.status(200).send(req.user);
   } else {
     res.status(404).send("Invalid credentials");
   }
