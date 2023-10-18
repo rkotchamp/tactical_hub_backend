@@ -27,15 +27,16 @@ const findByEmail = (email) => {
 
 const findUserToLogin = (email) => {
   return database
-    .query("SELECT *  from users WHERE email=?", email)
-    .then(([results]) => results);
+    .query("SELECT * from users WHERE email=?", [email])
+    .then(([results]) => results)
+    .catch((err) => console.error("Error executing the SQL query:", err));
 };
 
 const editUser = (data, user_id) => {
   return database
     .query("UPDATE users SET? WHERE id=?", [data, user_id])
     .then(([results]) => results)
-    .catch((err) => console.error(err));
+    .catch((err) => console.error("Error executing the SQL query:", err));
 };
 
 module.exports = {

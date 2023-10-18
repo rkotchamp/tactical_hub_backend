@@ -3,20 +3,38 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 const getUserById = (req, res) => {
-  const id = 1;
+  const id = Number(req.params.id);
   Users.userById(id)
-    .then((results) => console.log("Controller running"))
+    .then((results) => {
+      if (results !== null && results.length > 0) {
+        res.status(200).send(results);
+      } else {
+        res.status(404).send(`user with the id: ${id} not found`);
+      }
+    })
     .catch((err) => {
       console.error(err);
       res.status(500).send("Error retrieving user data from database");
     });
 };
 
-const getUsers = (req, res) => {
-  const body = req.body;
-  Users.getAllUsers(body)
-    .then((results) => results)
-    .catch((err) => console.error(err));
+const getUsersInfo = (req, res) => {
+  console.log("Req body", req.body);
+  const { email } = req.body;
+  Users.findUserToLogin(email)
+    .then((results) => {
+      console.log("results", results);
+      if (results[0] !== null && results[0].email === email) {
+        delete results[0].hashed_password;
+        res.status(200).send(results[0]);
+      } else {
+        res.status(404).send("User not found with the email" + email);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error retrieving user data from database");
+    });
 };
 
 const createNewUser = (req, res) => {
@@ -40,13 +58,15 @@ const createNewUser = (req, res) => {
 
 const loginUser = (req, res) => {
   // Users.findUserToLogin(req.body);
+
   if (req.user !== null && Object.keys(req.user).length > 0) {
     const { id, email } = req.user;
     const token = jwt.sign(
       { userId: id, email: email },
       process.env.PRIVATE_KEY
     );
-    console.log(token);
+    // console.log(token);
+    res.status(200).send({ message: "Success", token: token });
     // res.status(200).send(req.user);
   } else {
     res.status(404).send("Invalid credentials");
@@ -70,7 +90,7 @@ const editUserController = (req, res) => {
 };
 module.exports = {
   getUserById,
-  getUsers,
+  getUsersInfo,
   createNewUser,
   loginUser,
   editUserController,

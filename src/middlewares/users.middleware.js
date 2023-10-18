@@ -1,5 +1,6 @@
 const argon2 = require("argon2");
 const UserModel = require("../models/users.model");
+const jwt = require("jsonwebtoken");
 
 const hashingOptions = {
   type: argon2.argon2d,
@@ -22,7 +23,7 @@ const hashedPassword = (req, res, next) => {
       res.status(500).send("Error hashing the Password");
     });
 };
-//! email verify
+//! email verify to register
 
 const verifyEmailMiddleWare = (req, res, next) => {
   UserModel.findByEmail(req.body.email)
@@ -32,10 +33,9 @@ const verifyEmailMiddleWare = (req, res, next) => {
       } else {
         next();
       }
-      console.log(user[0]);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(500).send("Error getting email");
     });
 };
@@ -59,8 +59,10 @@ const verifyEmail = (req, res, next) => {
 
 const verifyPassword = (req, res, next) => {
   // get user hashed password
+
   UserModel.findUserToLogin(req.body.email)
     .then((user) => {
+      console.log(user[0].hashed_password);
       if (user !== null && user.length > 0) {
         argon2
           .verify(user[0].hashed_password, req.body.password)
@@ -81,8 +83,29 @@ const verifyPassword = (req, res, next) => {
       console.error(err);
       res.send(500).send("Error retrieving user ");
     });
-  // verify with argon2
-  //   argon2.verify(req.body.);
+};
+
+const verifyToken = (req, res, next) => {
+  console.log("token", req.body);
+  const authorizationHeader = req.get("Authorization");
+  if (authorizationHeader === null) {
+    res.status(403).send("Authorization header is missing");
+  }
+  const [type, token] = authorizationHeader.split(" ");
+  if (type !== "Bearer") {
+    res.status(403).send('Authorization header has no "Bearer" type');
+  }
+
+  jwt.verify(token, process.env.PRIVATE_KEY, (error, decoded) => {
+    if (error) {
+      console.error(error);
+      res.status(403).send("Error decoding authorization header");
+    } else {
+      req.userId = decoded.userId;
+      req.body.email = decoded.sub;
+      next();
+    }
+  });
 };
 
 module.exports = {
@@ -90,4 +113,5 @@ module.exports = {
   verifyEmailMiddleWare,
   verifyEmail,
   verifyPassword,
+  verifyToken,
 };

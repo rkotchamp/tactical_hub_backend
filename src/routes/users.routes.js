@@ -7,10 +7,12 @@ const {
   verifyEmailMiddleWare,
   hashedPassword,
   verifyPassword,
+  verifyToken,
 } = require("../middlewares/users.middleware");
 // Get users
-usersRouter.get("/:id", UserController.getUserById);
-usersRouter.get("/", UserController.getUsers);
+usersRouter.get("/:id", verifyToken, UserController.getUserById);
+
+usersRouter.get("/", verifyToken, UserController.getUsersInfo);
 
 //Create users
 
