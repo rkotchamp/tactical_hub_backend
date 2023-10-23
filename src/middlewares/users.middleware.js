@@ -59,10 +59,8 @@ const verifyEmail = (req, res, next) => {
 
 const verifyPassword = (req, res, next) => {
   // get user hashed password
-
   UserModel.findUserToLogin(req.body.email)
     .then((user) => {
-      console.log(user[0].hashed_password);
       if (user !== null && user.length > 0) {
         argon2
           .verify(user[0].hashed_password, req.body.password)
@@ -86,7 +84,6 @@ const verifyPassword = (req, res, next) => {
 };
 
 const verifyToken = (req, res, next) => {
-  console.log("token", req.body);
   const authorizationHeader = req.get("Authorization");
   if (authorizationHeader === null) {
     res.status(403).send("Authorization header is missing");
@@ -102,7 +99,7 @@ const verifyToken = (req, res, next) => {
       res.status(403).send("Error decoding authorization header");
     } else {
       req.userId = decoded.userId;
-      req.body.email = decoded.sub;
+      req.body.email = decoded.email;
       next();
     }
   });

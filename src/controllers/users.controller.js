@@ -19,11 +19,9 @@ const getUserById = (req, res) => {
 };
 
 const getUsersInfo = (req, res) => {
-  console.log("Req body", req.body);
   const { email } = req.body;
   Users.findUserToLogin(email)
     .then((results) => {
-      console.log("results", results);
       if (results[0] !== null && results[0].email === email) {
         delete results[0].hashed_password;
         res.status(200).send(results[0]);
