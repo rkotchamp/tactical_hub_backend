@@ -63,6 +63,7 @@ const loginUser = (req, res) => {
       { userId: id, email: email },
       process.env.PRIVATE_KEY
     );
+
     // console.log(token);
     res.status(200).send({ message: "Success", token: token });
     // res.status(200).send(req.user);
